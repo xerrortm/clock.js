@@ -145,7 +145,7 @@
                     <svg class="w-5 h-5 bg-gradient-to-br from-indigo-500 to-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div class="flex items-center gap-0">
-                    Clock<span class="text-slate-400">.js</span>
+                    Clock<span class="text-slate-400">.js</span> V2
                 </div>
             </div>
             <div class="flex items-center gap-6 text-sm font-semibold">
@@ -497,14 +497,11 @@
         document.querySelectorAll('.reveal').forEach((el) => {
             observer.observe(el);
         });
-    </script>
-    <script>
-        const demo = new Clock({
+        const demo = Clock({
           time: "h:m:s A",
           date: "W, M D Y",
           type: 12
         });
-
         demo.on((d) => {
           document.getElementById("jsClockTime").textContent = d.time;
           document.getElementById("jsClockDate").textContent = d.date;
