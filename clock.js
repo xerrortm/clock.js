@@ -32,32 +32,32 @@ y
 );
 });
 }
-function Clock(c={}){
-return new _Clock(c);
-}
 class _Clock{
-constructor(c){
-this.t=c.time||"h:m:s";
-this.d=c.date||"";
-this.z=c.zone||0;
-this.y=c.type||24;
-this.l=[];
-this.u();
-this.i=setInterval(()=>this.u(),1000);
+  constructor(c={}){
+    this.t=c.time||"h:m:s";
+    this.d=c.date||"";
+    this.z=c.zone||0;
+    this.y=c.type||24;
+    this.l=[];
+    this.u();
+    this.i=setInterval(()=>this.u(),1000);
+  }
+  u(){
+    let d=p(new Date(),this.z);
+    this.T=f(this.t,d,0,this.y);
+    this.D=this.d?f(this.d,d,1,this.y):"";
+    this.l.forEach(x=>x({time:this.T,date:this.D,raw:d}));
+  }
+  on(fn){
+    this.l.push(fn);
+  }
+  get time(){return this.T}
+  get date(){return this.D}
 }
-u(){
-let d=p(new Date(),this.z);
-this.T=f(this.t,d,0,this.y);
-this.D=this.d?f(this.d,d,1,this.y):"";
-this.l.forEach(x=>x({time:this.T,date:this.D,raw:d}));
+function Clock(c){
+  return new _Clock(c||{});
 }
-on(e,f){
-this.l.push(f);
-}
-get time(){return this.T}
-get date(){return this.D}
-}
-window.Clock=Clock;
+window.Clock = Clock;
 t();
 setInterval(t,100);
 })();
