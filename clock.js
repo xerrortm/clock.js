@@ -1,6 +1,6 @@
 //Copyright (c) 2026 xerrortm
 //MIT license. For more license information, check the GitHub LICENSE page
-//Clock.js V1.2
+//Clock.js V2
 (()=>{const M="January February March April May June July August September October November December".split(" "),W="Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" ");
 const f=(t,d,x,y,h=d.getHours())=>t.replace(/h|m|s|D|M|Y|W|A/g,a=>a=="h"?String(y==12?h%12||12:h).padStart(2,0):a=="m"?String(d.getMinutes()).padStart(2,0):a=="s"?String(d.getSeconds()).padStart(2,0):a=="D"?String(d.getDate()).padStart(2,0):a=="M"?x?M[d.getMonth()]:String(d.getMonth()+1).padStart(2,0):a=="Y"?d.getFullYear():a=="A"?h<12?"AM":"PM":x?W[d.getDay()]:d.getDay());
 const z=d=>d, p=(d,z)=>!z||isNaN(z)?d:new Date(d.getTime()+(+z+d.getTimezoneOffset()/60)*36e5);
