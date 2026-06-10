@@ -281,116 +281,68 @@
     </section>
 <!-- JS API -->
 <section class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 reveal relative z-10">
-
   <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center">
-    Now with JavaScript API.
+    Now with JavaScript API
   </h2>
 
   <p class="text-xl text-slate-400 text-center mb-16">
-    Use HTML attributes OR control everything programmatically with
-    <span class="text-indigo-400 font-mono">Clock v2</span>.
+    Get the current time and date to use for your scripts.
   </p>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <!-- CREATE INSTANCE -->
+    <!-- CODE -->
+    <div class="spotlight-card rounded-2xl overflow-hidden group">
+      <div class="spotlight-content">
+
+        <div class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+          <div>
+            <h3 class="font-bold text-lg">Clock Instance</h3>
+            <p class="text-slate-400 text-sm">API usage example</p>
+          </div>
+
+          <button onclick="copyCode(this)"
+            class="p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
+        </div>
+
+<pre class="p-6 overflow-x-auto text-sm md:text-base font-mono bg-[#030712]">
+<code class="text-indigo-300">
+<span class="text-pink-400">const</span> clock = Clock({
+  time: <span class="text-yellow-300">"h:m:s A"</span>,
+  date: <span class="text-yellow-300">"W, M D Y"</span>,
+  zone: <span class="text-purple-300">0</span>,
+  type: <span class="text-purple-300">12</span>
+});
+
+clock.on(data => {
+  console.log(data.time);
+  console.log(data.date);
+});
+</code>
+</pre>
+
+      </div>
+    </div>
+
+    <!-- LIVE PREVIEW -->
     <div class="spotlight-card rounded-2xl overflow-hidden group">
       <div class="spotlight-content">
 
         <div class="p-6 border-b border-white/5 bg-white/5">
-          <h3 class="font-bold text-lg">Create a Clock instance</h3>
-          <p class="text-slate-400 text-sm">
-            Full JS control (format, timezone, 12/24h mode)
-          </p>
+          <h3 class="font-bold text-lg">Live Preview</h3>
+          <p class="text-slate-400 text-sm">Real-time output from Clock v2</p>
         </div>
 
-        <pre class="p-6 overflow-x-auto text-sm font-mono leading-relaxed">
-<code>
-<span class="text-pink-400">const</span> <span class="text-white">clock</span> = <span class="text-pink-400">new</span> <span class="text-indigo-300">Clock</span>({
-  <span class="text-slate-400">time</span>: <span class="text-yellow-300">"h:m:s A"</span>,
-  <span class="text-slate-400">date</span>: <span class="text-yellow-300">"W, M D Y"</span>,
-  <span class="text-slate-400">zone</span>: <span class="text-orange-300">0</span>,
-  <span class="text-slate-400">type</span>: <span class="text-orange-300">12</span>
-});
-</code>
-        </pre>
-
-      </div>
-    </div>
-
-    <!-- LIVE OUTPUT -->
-    <div class="spotlight-card rounded-2xl overflow-hidden group">
-      <div class="spotlight-content">
-
-        <div class="p-6 border-b border-white/5 bg-white/5">
-          <h3 class="font-bold text-lg">Live Output</h3>
-          <p class="text-slate-400 text-sm">
-            Automatically updates every second when bound
-          </p>
+        <div class="p-10 font-mono text-center">
+          <div id="jsClockTime" class="text-4xl font-black text-white">--:--:--</div>
+          <div id="jsClockDate" class="text-indigo-400 mt-4 text-lg">---</div>
         </div>
-
-        <div class="p-6 font-mono">
-          <div class="text-3xl font-black text-white" id="jsClockTime">--:--:--</div>
-          <div class="text-indigo-400 mt-2 text-lg" id="jsClockDate">---</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- REACTIVE -->
-    <div class="spotlight-card rounded-2xl overflow-hidden group lg:col-span-2">
-      <div class="spotlight-content">
-
-        <div class="p-6 border-b border-white/5 bg-white/5">
-          <h3 class="font-bold text-lg">Reactive Listener System</h3>
-          <p class="text-slate-400 text-sm">
-            Subscribe to real-time updates
-          </p>
-        </div>
-
-        <pre class="p-6 overflow-x-auto text-sm font-mono leading-relaxed">
-<code>
-<span class="text-indigo-300">clock</span>.<span class="text-yellow-300">on</span>((<span class="text-slate-300">data</span>) => {
-  <span class="text-purple-300">console</span>.<span class="text-yellow-300">log</span>(data.<span class="text-slate-300">time</span>);
-  <span class="text-purple-300">console</span>.<span class="text-yellow-300">log</span>(data.<span class="text-slate-300">date</span>);
-  <span class="text-purple-300">console</span>.<span class="text-yellow-300">log</span>(data.<span class="text-slate-300">raw</span>);
-});
-</code>
-        </pre>
-
-        <div class="p-6 text-sm text-slate-400">
-          → Fires every second automatically<br>
-          → Returns formatted time + raw Date object<br>
-          → Perfect for dashboards, widgets, overlays
-        </div>
-
-      </div>
-    </div>
-
-    <!-- IMPORTANT -->
-    <div class="spotlight-card rounded-2xl overflow-hidden group lg:col-span-2">
-      <div class="spotlight-content p-6">
-
-        <h3 class="font-bold text-lg mb-2 text-indigo-300">
-          ⚡ Required Binding
-        </h3>
-
-        <p class="text-slate-400 text-sm mb-4">
-          The instance must be connected to DOM elements using <span class="font-mono text-white">bind()</span>:
-        </p>
-
-        <pre class="p-4 rounded-xl bg-black/40 border border-white/5 overflow-x-auto text-sm font-mono">
-<code>
-clock.bind(
-  document.getElementById("jsClockTime"),
-  document.getElementById("jsClockDate")
-);
-</code>
-        </pre>
-
-        <p class="text-slate-500 text-xs mt-4">
-          Without bind(), values only exist in JS (no UI updates).
-        </p>
 
       </div>
     </div>
