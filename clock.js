@@ -12,10 +12,10 @@ d=p(d,z); if(y!=12&&y!=24)return;
 e.textContent=f(e.getAttribute("clock-time")||e.getAttribute("clock-date"),d,e.hasAttribute("clock-date"),y);
 });
 }
-class Clock{constructor(c={}){this.t=c.time||"h:m:s";this.d=c.date||"";this.z=c.zone||0;this.y=c.type||24;this.u();setInterval(()=>this.u(),1e3)}
+class Clock{constructor(c={}){this.t=c.time||"h:m:s";this.d=c.date||"";this.z=c.zone||0;this.y=c.type||24;this.u();setInterval(()=>this.u(),100)}
 u(){let d=p(new Date(),this.z);this.T=f(this.t,d,0,this.y);this.D=this.d?f(this.d,d,1,this.y):"";this.l?.forEach(x=>x({time:this.T,date:this.D,raw:d}))}
 on(e,f){(this.l??=[]).push(f)}
 get time(){return this.T}get date(){return this.D}}
 window.Clock=Clock;
-t();setInterval(t,1e3);
+t();setInterval(t,100);
 })();
