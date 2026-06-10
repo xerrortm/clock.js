@@ -54,7 +54,15 @@ class _Clock{
     this.l.push(fn);
   }
   get time(){ return this.T }
+  set time(v){
+    this.t = v;
+    this.u();
+  }
   get date(){ return this.D }
+  set date(v){
+    this.d = v;
+    this.u();
+  }
 }
 function Clock(c = {}){
   const core = new _Clock(c);
@@ -90,6 +98,7 @@ function Clock(c = {}){
     }
   });
 }
+  
 window.Clock = Clock;
 t();
 setInterval(t,100);
