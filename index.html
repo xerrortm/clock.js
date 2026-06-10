@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock.js | The HTML-first time library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        background: '#030712',
+                        surface: '#0f172a',
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/gh/xerrortm/xerrortm.github.io@753979d/scripts/clock.js"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Tech Grid Background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Spotlight Cards */
+        .spotlight-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .spotlight-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(99, 102, 241, 0.15), transparent 40%);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        .spotlight-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .spotlight-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Text Gradients & Glows */
+        .glow-text {
+            text-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #60a5fa, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Scroll Reveal Utility */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-500/30 selection:text-white relative">
+
+    <!-- Absolute Backgrounds -->
+    <div class="fixed inset-0 z-[-2] bg-background"></div>
+    <div class="absolute inset-0 z-[-1] bg-grid h-screen pointer-events-none"></div>
+    
+    <!-- Ambient Glowing Orbs -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none opacity-60">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-indigo-600/20 blur-[150px] mix-blend-screen animate-blob"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-600/20 blur-[150px] mix-blend-screen animate-blob" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-purple-600/20 blur-[150px] mix-blend-screen animate-blob" style="animation-delay: 4s;"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-background/50 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-bold text-xl tracking-tighter">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <svg class="w-5 h-5 bg-gradient-to-br from-indigo-500 to-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="flex items-center gap-0">
+                    Clock<span class="text-slate-400">.js</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-6 text-sm font-semibold">
+                <a href="#showcase" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Showcase</a>
+                <a href="#docs" class="text-slate-400 hover:text-white transition-colors hidden sm:block">Docs</a>
+                <a href="https://github.com/xerrortm/clock.js" target="_blank" class="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all border border-white/5 hover:border-white/10">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                    <span>Star on GitHub</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="pt-40 pb-24 px-6 max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
+        
+        <h1 class="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter mb-6 leading-[1.1]">
+            Time, <br class="md:hidden">
+            <span class="text-gradient">simplified.</span>
+        </h1>
+        
+        <p class="text-lg md:text-2xl text-slate-400 max-w-3xl mb-12 font-medium">
+            The absurdly lightweight, declarative vanilla JS library. No setup, no config, just drop in attributes and go.
+        </p>
+
+        <!-- Massive Live Hero Clock -->
+        <div class="spotlight-card rounded-[2.5rem] p-8 md:p-16 mb-16 animate-float w-full max-w-4xl shadow-2xl shadow-indigo-500/10 group">
+            <div class="spotlight-content">
+                <div class="text-[12vw] md:text-9xl font-black tracking-tighter glow-text font-mono bg-gradient-to-b from-white to-white/50 -webkit-background-clip-text text-transparent bg-clip-text" clock-time="h:m:s"></div>
+                <div class="mt-4 text-indigo-400/80 font-mono text-xl md:text-2xl font-bold" clock-date="W, M D Y"></div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <a href="#install" class="px-8 py-4 rounded-xl bg-white text-black hover:bg-slate-200 font-bold transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                Install Now
+            </a>
+            <a href="#docs" class="px-8 py-4 rounded-xl spotlight-card hover:bg-white/5 text-white font-bold transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-lg">
+                Read Documentation
+            </a>
+        </div>
+    </header>
+
+    <!-- Bento Box Showcase -->
+    <section id="showcase" class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 reveal z-10 relative">
+        <div class="mb-12">
+            <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4">Bento Showcase.</h2>
+            <p class="text-xl text-slate-400">One script, infinite possibilities through HTML attributes.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[200px]">
+            <!-- Large Card (Spans 2 cols, 2 rows) -->
+            <div class="spotlight-card md:col-span-2 md:row-span-2 p-8 flex flex-col justify-between group">
+                <div class="spotlight-content h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-auto">
+                        <div class="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-white/5 text-xs font-mono text-slate-300 border border-white/10">12-Hour System</span>
+                    </div>
+                    <div>
+                        <h3 class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">Local Time</h3>
+                        <div class="text-5xl md:text-6xl font-black font-mono tracking-tight text-white group-hover:text-blue-400 transition-colors" clock-time="h:m:s A" clock-type="12"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medium Cards -->
+            <div class="spotlight-card md:col-span-2 p-8 flex flex-col justify-center group">
+                <div class="spotlight-content flex items-center justify-between">
+                    <div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Tokyo (GMT+9)</h3>
+                        <div class="text-4xl font-bold font-mono tracking-tight text-white group-hover:text-pink-400 transition-colors" clock-time="h:m:s" clock-zone="9"></div>
+                    </div>
+                    <span class="text-5xl opacity-50 group-hover:opacity-100 transition-opacity group-hover:scale-110 duration-300">🇯🇵</span>
+                </div>
+            </div>
+
+            <div class="spotlight-card md:col-span-2 p-8 flex flex-col justify-center group">
+                <div class="spotlight-content flex items-center justify-between">
+                    <div>
+                        <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">New York (GMT-5)</h3>
+                        <div class="text-4xl font-bold font-mono tracking-tight text-white group-hover:text-indigo-400 transition-colors" clock-time="h:m:s" clock-zone="-5"></div>
+                    </div>
+                    <span class="text-5xl opacity-50 group-hover:opacity-100 transition-opacity group-hover:scale-110 duration-300">🇺🇸</span>
+                </div>
+            </div>
+
+            <!-- Small Cards -->
+            <div class="spotlight-card md:col-span-2 p-8 flex flex-col justify-center group">
+                <div class="spotlight-content text-center">
+                    <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Full Date Formatting</h3>
+                    <div class="text-2xl md:text-3xl font-bold font-mono tracking-tight text-emerald-400" clock-date="W, M D Y"></div>
+                </div>
+            </div>
+
+            <div class="spotlight-card md:col-span-2 p-8 flex flex-col justify-center group">
+                <div class="spotlight-content text-center">
+                    <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Short Date</h3>
+                    <div class="text-3xl md:text-4xl font-bold font-mono tracking-tight text-amber-400" clock-time="D/M/Y"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section id="install" class="py-24 px-6 max-w-4xl mx-auto reveal relative z-10">
+        <div class="spotlight-card p-8 md:p-12 rounded-[2rem]">
+            <div class="spotlight-content text-center">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-green-500/20">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-black mb-4">Drop it in.</h2>
+                <p class="text-slate-400 text-lg mb-8 max-w-xl mx-auto">No NPM, no build steps. Just paste this script tag into your HTML head and start adding attributes.</p>
+                
+                <div class="relative group rounded-xl overflow-hidden shadow-2xl code-block text-left border border-white/10">
+                    <div class="flex items-center px-4 py-3 bg-[#09090b] border-b border-white/5">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                            <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                            <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                        </div>
+                        <div class="w-full text-center text-xs text-slate-500 font-mono pr-8">index.html</div>
+                    </div>
+                    <button onclick="copyCode(this)" class="absolute top-14 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10" title="Copy to clipboard">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                    <pre class="p-6 bg-[#030712] overflow-x-auto text-sm md:text-base font-mono text-indigo-300 leading-relaxed"><code class="language-html">&lt;<span class="text-pink-400">script</span> <span class="text-green-400">src</span>=<span class="text-yellow-300">"https://cdn.jsdelivr.net/gh/xerrortm/clock.js@latest/clock.js"</span>&gt;&lt;/<span class="text-pink-400">script</span>&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Examples (Docs) -->
+    <section id="docs" class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 reveal relative z-10">
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center">Documentation.</h2>
+        <p class="text-xl text-slate-400 text-center mb-16">It's so simple, no need to write large amounts of script just for one clock.</p>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Digital Clock -->
+            <div class="spotlight-card rounded-2xl overflow-hidden group">
+                <div class="spotlight-content">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Basic Time
+                        </h3>
+                        <div class="text-xl font-bold font-mono" clock-time="h:m:s"></div>
+                    </div>
+                    <div class="relative code-block">
+                        <button onclick="copyCode(this)" class="absolute top-4 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <pre class="p-6 overflow-x-auto text-sm font-mono text-indigo-300"><code>&lt;<span class="text-pink-400">h1</span> <span class="text-green-400">clock-time</span>=<span class="text-yellow-300">"h:m:s"</span>&gt;&lt;/<span class="text-pink-400">h1</span>&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Formatter -->
+            <div class="spotlight-card rounded-2xl overflow-hidden group">
+                <div class="spotlight-content">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Dates
+                        </h3>
+                        <div class="text-lg md:text-xl font-bold font-mono" clock-date="W, M D Y"></div>
+                    </div>
+                    <div class="relative code-block">
+                        <button onclick="copyCode(this)" class="absolute top-4 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <pre class="p-6 overflow-x-auto text-sm font-mono text-indigo-300"><code>&lt;<span class="text-pink-400">h1</span> <span class="text-green-400">clock-date</span>=<span class="text-yellow-300">"W, M D Y"</span>&gt;&lt;/<span class="text-pink-400">h1</span>&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 12 Hour Mode -->
+            <div class="spotlight-card rounded-2xl overflow-hidden group">
+                <div class="spotlight-content">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                            AM/PM Format
+                        </h3>
+                        <div class="text-xl font-bold font-mono" clock-time="h:m:s A" clock-type="12"></div>
+                    </div>
+                    <div class="relative code-block">
+                        <button onclick="copyCode(this)" class="absolute top-4 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <pre class="p-6 overflow-x-auto text-sm font-mono text-indigo-300"><code>&lt;<span class="text-pink-400">h1</span> <span class="text-green-400">clock-time</span>=<span class="text-yellow-300">"h:m:s A"</span> <span class="text-green-400">clock-type</span>=<span class="text-yellow-300">"12"</span>&gt;&lt;/<span class="text-pink-400">h1</span>&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- World Clock -->
+            <div class="spotlight-card rounded-2xl overflow-hidden group">
+                <div class="spotlight-content">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <h3 class="font-bold text-lg flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                            Timezones
+                        </h3>
+                        <div class="text-xl font-bold font-mono" clock-time="h:m:s" clock-zone="9"></div>
+                    </div>
+                    <div class="relative code-block">
+                        <button onclick="copyCode(this)" class="absolute top-4 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10">
+                            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <pre class="p-6 overflow-x-auto text-sm font-mono text-indigo-300"><code>&lt;<span class="text-pink-400">h1</span> <span class="text-green-400">clock-time</span>=<span class="text-yellow-300">"h:m:s"</span> <span class="text-green-400">clock-zone</span>=<span class="text-yellow-300">"9"</span>&gt;&lt;/<span class="text-pink-400">h1</span>&gt;</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-[#030712] py-16 px-6 text-center relative z-10">
+        <div class="flex items-center justify-center gap-2 font-black text-2xl tracking-tighter mb-4">
+            <div class="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div class="flex items-center gap-0">
+                Clock<span class="text-slate-400">.js</span>
+            </div>
+        </div>
+        <p class="text-slate-400 mb-6 font-medium">Tiny. Fast. HTML-first.</p>
+        <p class="text-slate-400 text-sm">Examples shown using realtime Clock.js</p>
+        <p class="text-slate-400 text-sm">
+            Created by <a href="https://xerrortm.github.io" target="_blank" class="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">ERROR Inc.</a>
+        </p>
+    </footer>
+    <script>
+        // 1. Copy to Clipboard Logic
+        function copyCode(btn) {
+            const codeEl = btn.parentElement.querySelector('code');
+            const textArea = document.createElement("textarea");
+            textArea.value = codeEl.innerText;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = `<svg class="w-4 h-4 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+            } catch (err) {
+                console.error('Copy failed', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // 2. Mouse Spotlight Effect for Cards
+        document.querySelectorAll('.spotlight-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // 3. Scroll Reveal Animation
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((el) => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
