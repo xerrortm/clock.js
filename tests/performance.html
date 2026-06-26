@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/gh/xerrortm/clock.js@6cb297a/clockv3.js"></script>
+</head>
+<body>
+<h2>Clock.js Engine Stress Test</h2>
+<button onclick="test()">Test</button>
+<div id="log"></div>
+<script>
+const log = document.getElementById("log");
+function test(){
+function bench(label, fn){
+  const start = performance.now();
+  fn();
+  const end = performance.now();
+  log.innerHTML += `${label}: ${(end-start).toFixed(2)}ms<br>`;
+}
+
+bench("Create 10000 clocks", () => {
+  window.clocks = [];
+
+  for(let i=0;i<10000;i++){
+    const c = Clock({
+      time:"h:m:s",
+      date:"W, M D Y",
+      zone: i % 24,
+      type: 24
+    });
+
+    c.on(()=>{});
+    clocks.push(c);
+  }
+});
+
+bench("Mutate 10000 clocks format", () => {
+  for(const c of clocks){
+    c.time = "h:m:s A";
+    c.date = "D/M/Y";
+    c.zone = 3;
+    c.type = 12;
+  }
+});
+
+bench("Attach 5000 listeners per clock", () => {
+  for(const c of clocks){
+    for(let i=0;i<5000;i++){
+      c.on(()=>{});
+    }
+  }
+});
+
+bench("Force 10000 manual updates", () => {
+  const now = new Date();
+  for(const c of clocks){
+    c._u(now);
+  }
+});
+
+bench("Proxy churn test (50000 ops)", () => {
+  for(let i=0;i<50000;i++){
+    const c = clocks[i % clocks.length];
+    c.time = "h:m:s";
+    c.zone = i % 12;
+    c.type = i % 2 ? 12 : 24;
+  }
+});
+
+log.innerHTML += "<br><b>DONE</b><br>";
+}
+</script>
+
+</body>
+</html>
