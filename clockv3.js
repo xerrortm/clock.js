@@ -98,19 +98,42 @@ function Clock(c = {}){
     }
   });
 }
-Clock.isWeekend=d=>{
-  d=d||new Date();
-  return d.getDay()==0||d.getDay()==6;
-};
-Clock.isLeapYear=y=>{
-  y=y instanceof Date?y.getFullYear():y||new Date().getFullYear();
-  return y%4==0&&(y%100||y%400==0);
-};
-Clock.isNight=d=>{
-  d=d||new Date();
-  let h=d.getHours();
-  return h<6||h>=18;
-};
+function isWeekend(d = new Date()) {
+  d = new Date(d);
+  return d.getDay() === 0 || d.getDay() === 6;
+}
+function isLeapYear(y = new Date()) {
+  y = y instanceof Date ? y.getFullYear() : (y || new Date().getFullYear());
+  return y % 4 === 0 && (y % 100 || y % 400 === 0);
+}
+function isNight(d = new Date()) {
+  d = new Date(d);
+  const h = d.getHours();
+  return h < 6 || h >= 18;
+}
+function Clock(c = {}) {
+  const core = new _Clock(c);
+  return new Proxy(core, {
+    set(target, prop, value) {
+      if (prop === "time") { target.t = value; target.u(); return true; }
+      if (prop === "date") { target.d = value; target.u(); return true; }
+      if (prop === "zone") { target.z = value; target.u(); return true; }
+      if (prop === "type") { target.y = value; target.u(); return true; }
+      target[prop] = value;
+      return true;
+    },
+    get(target, prop) {
+      if (prop === "time") return target.T;
+      if (prop === "date") return target.D;
+      return target[prop];
+    }
+  });
+}
+Object.assign(Clock, {
+  isWeekend,
+  isLeapYear,
+  isNight
+});
 window.Clock = Clock;
 t();
 setInterval(t,100);
