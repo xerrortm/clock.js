@@ -42,7 +42,7 @@
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/gh/xerrortm/clock.js@e72edee/clock.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/xerrortm/clock.js@1749014/clockv3.js"></script>
     <style>
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
@@ -283,75 +283,125 @@
 <!-- JS API -->
 <section class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 reveal relative z-10">
   <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-center">
-    Introducing the JavaScript API
+    JavaScript API
   </h2>
 
   <p class="text-xl text-slate-400 text-center mb-16">
-    Get current time in various formats using JavaScript in Clock.js v2
+    Live outputs + real code. No fake demos.
   </p>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <!-- CODE BLOCK -->
-    <div class="spotlight-card rounded-2xl overflow-hidden group">
+    <!-- INSTANCE CARD -->
+    <div class="spotlight-card rounded-2xl overflow-hidden">
       <div class="spotlight-content">
-          <div class="relative code-block">
 
-        <!-- HEADER -->
-        <div class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-lg">Clock Instance</h3>
-            <p class="text-slate-400 text-sm">Constructor + reactive API</p>
+        <!-- LIVE OUTPUT -->
+        <div class="p-6 border-b border-white/5 bg-white/5">
+          <h3 class="font-bold">Clock Instance (Live)</h3>
+          <p class="text-slate-400 text-sm">Reactive time + date</p>
+
+          <div class="mt-4">
+            <div id="apiTime" class="text-4xl font-black font-mono text-white">--:--:--</div>
+            <div id="apiDate" class="text-indigo-400 mt-2 text-lg">---</div>
           </div>
-          
         </div>
-          <button onclick="copyCode(this)"class="absolute top-4 right-4 p-2 rounded-md bg-white/5 text-slate-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-white/10 hover:text-white z-10">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none"
-                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
-          </button>
 
         <!-- CODE -->
-        <pre class="p-6 overflow-x-auto text-sm md:text-base font-mono bg-[#030712] leading-relaxed">
-<code class="text-indigo-300">
-<span class="text-purple-400">const</span> clock = <span class="text-blue-400">Clock</span>({
-  <span class="text-green-400">time</span>: <span class="text-yellow-300">"h:m:s A"</span>,
-  <span class="text-green-400">date</span>: <span class="text-yellow-300">"W, M D Y"</span>,
-  <span class="text-green-400">zone</span>: <span class="text-purple-300">0</span>,
-  <span class="text-green-400">type</span>: <span class="text-purple-300">12</span>
+        <div class="relative">
+          <pre class="p-6 text-sm font-mono text-indigo-300 bg-[#030712] overflow-x-auto">
+<code>
+const clock = Clock({
+  time: "h:m:s A",
+  date: "W, M D Y",
+  type: 12
 });
 
-<span class="text-gray-500">// reactive listener</span>
-clock.on(<span class="text-blue-400">data</span> => {
-  console.log(<span class="text-yellow-300">"TIME:"</span>, data.time);
-  console.log(<span class="text-yellow-300">"DATE:"</span>, data.date);
+clock.on(d => {
+  console.log(d.time);
 });
-
-<span class="text-gray-500">// DOM binding example</span>
-setInterval(() => {
-  document.querySelector(<span class="text-yellow-300">"#jsClockTime"</span>).textContent = clock.time;
-  document.querySelector(<span class="text-yellow-300">"#jsClockDate"</span>).textContent = clock.date;
-}, <span class="text-purple-300">1000</span>);
 </code>
-        </pre>
-          </div>
+          </pre>
+        </div>
+
       </div>
     </div>
 
-    <!-- PREVIEW -->
-    <div class="spotlight-card rounded-2xl overflow-hidden group">
+    <!-- WEEKEND CARD -->
+    <div class="spotlight-card rounded-2xl overflow-hidden">
       <div class="spotlight-content">
 
+        <!-- LIVE OUTPUT -->
         <div class="p-6 border-b border-white/5 bg-white/5">
-          <h3 class="font-bold text-lg">Live Preview</h3>
-          <p class="text-slate-400 text-sm">Real-time instance output</p>
+          <h3 class="font-bold">isWeekend()</h3>
+          <p class="text-slate-400 text-sm">true / false check</p>
+
+          <div id="apiWeekend" class="text-4xl font-black font-mono text-emerald-400 mt-4">---</div>
         </div>
 
-        <div class="p-10 font-mono text-center">
-          <div id="jsClockTime" class="text-5xl font-black text-white">--:--:--</div>
-          <div id="jsClockDate" class="text-indigo-400 mt-4 text-2xl">---</div>
+        <!-- CODE -->
+        <div class="relative">
+          <pre class="p-6 text-sm font-mono text-emerald-300 bg-[#030712] overflow-x-auto">
+<code>
+const w = Clock.isWeekend();
+
+if (w) {
+  console.log("Weekend!");
+}
+</code>
+          </pre>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LEAP YEAR -->
+    <div class="spotlight-card rounded-2xl overflow-hidden">
+      <div class="spotlight-content">
+
+        <!-- LIVE OUTPUT -->
+        <div class="p-6 border-b border-white/5 bg-white/5">
+          <h3 class="font-bold">isLeapYear()</h3>
+          <p class="text-slate-400 text-sm">current year detection</p>
+
+          <div id="apiLeap" class="text-4xl font-black font-mono text-blue-400 mt-4">---</div>
+        </div>
+
+        <!-- CODE -->
+        <div class="relative">
+          <pre class="p-6 text-sm font-mono text-blue-300 bg-[#030712] overflow-x-auto">
+<code>
+if (Clock.isLeapYear()) {
+  console.log("Leap Year!");
+}
+</code>
+          </pre>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NIGHT -->
+    <div class="spotlight-card rounded-2xl overflow-hidden">
+      <div class="spotlight-content">
+
+        <!-- LIVE OUTPUT -->
+        <div class="p-6 border-b border-white/5 bg-white/5">
+          <h3 class="font-bold">isNight()</h3>
+          <p class="text-slate-400 text-sm">day / night detection</p>
+
+          <div id="apiNight" class="text-4xl font-black font-mono text-purple-400 mt-4">---</div>
+        </div>
+
+        <!-- CODE -->
+        <div class="relative">
+          <pre class="p-6 text-sm font-mono text-purple-300 bg-[#030712] overflow-x-auto">
+<code>
+if (Clock.isNight()) {
+  console.log("Good night 🌙");
+}
+</code>
+          </pre>
         </div>
 
       </div>
@@ -510,15 +560,32 @@ setInterval(() => {
         document.querySelectorAll('.reveal').forEach((el) => {
             observer.observe(el);
         });
-        const demo = Clock({
-          time: "h:m:s A",
-          date: "W, M D Y",
-          type: 12
+        
+        // Demo
+        const apiClock = Clock({
+            time: "h:m:s A",
+            date: "W, M D Y",
+            type: 12
         });
-        demo.on((d) => {
-          document.getElementById("jsClockTime").textContent = d.time;
-          document.getElementById("jsClockDate").textContent = d.date;
-        });
+
+        function updateAPI(){
+            const now = new Date();
+
+            document.getElementById("apiTime").textContent = apiClock.time;
+            document.getElementById("apiDate").textContent = apiClock.date;
+
+            document.getElementById("apiWeekend").textContent =
+            Clock.isWeekend(now) ? "TRUE" : "FALSE";
+
+            document.getElementById("apiLeap").textContent =
+            Clock.isLeapYear(now) ? "YES" : "NO";
+
+            document.getElementById("apiNight").textContent =
+            Clock.isNight(now) ? "NIGHT" : "DAY";
+        }
+
+        setInterval(updateAPI, 200);
+        updateAPI();
     </script>
 </body>
 </html>
