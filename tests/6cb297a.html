@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/gh/xerrortm/clock.js@6cb297a/clockv3.js"></script>
+</head>
+
+<body>
+
+<h2>Clock.js V3 Commit Test: 6cb297a</h2>
+
+<hr>
+
+<h3>HTML Binding Test</h3>
+<div clock-time="h:m:s"></div>
+<div clock-date="W, M D Y"></div>
+
+<hr>
+
+<h3>JS Instance Test</h3>
+
+<div id="time"></div>
+<div id="date"></div>
+<div id="meta"></div>
+
+<hr>
+
+<h3>Behavior Checks</h3>
+<div id="checks"></div>
+
+<script>
+const clock = Clock({
+  time: "h:m:s",
+  date: "W, M D Y",
+  zone: 0,
+  type: 24
+});
+
+const timeEl = document.getElementById("time");
+const dateEl = document.getElementById("date");
+const metaEl = document.getElementById("meta");
+const checksEl = document.getElementById("checks");
+
+let lastTime = "";
+
+// ================= REACTIVE TEST =================
+clock.on(data => {
+  timeEl.textContent = "TIME: " + data.time;
+  dateEl.textContent = "DATE: " + data.date;
+
+  metaEl.textContent =
+    "ZONE=" + clock.z +
+    " | TYPE=" + clock.y +
+    " | RAW_VALID=" + (data.raw instanceof Date);
+});
+
+// ================= CHANGE TESTS =================
+function runChecks() {
+  const results = [];
+
+  // 1. Clock updates
+  results.push("JS instance active: " + (clock.time !== undefined));
+
+  // 2. HTML binding exists
+  results.push("HTML elements found: " +
+    (document.querySelector("[clock-time]") !== null)
+  );
+
+  // 3. Proxy reactivity
+  const before = clock.time;
+  clock.time = "h:m:s A";
+  const after = clock.time;
+  results.push("Proxy update works: " + (before !== after));
+
+  // 4. timezone mutation
+  clock.zone = 9;
+  results.push("Zone changed: " + (clock.z === 9));
+
+  // restore
+  clock.zone = 0;
+  clock.time = "h:m:s";
+
+  checksEl.innerHTML = results.map(r => "✔ " + r).join("<br>");
+}
+
+runChecks();
+</script>
+
+</body>
+</html>
