@@ -98,7 +98,19 @@ function Clock(c = {}){
     }
   });
 }
-  
+Clock.isWeekend=d=>{
+  d=d||new Date();
+  return d.getDay()==0||d.getDay()==6;
+};
+Clock.isLeapYear=y=>{
+  y=y instanceof Date?y.getFullYear():y||new Date().getFullYear();
+  return y%4==0&&(y%100||y%400==0);
+};
+Clock.isNight=d=>{
+  d=d||new Date();
+  let h=d.getHours();
+  return h<6||h>=18;
+};
 window.Clock = Clock;
 t();
 setInterval(t,100);
