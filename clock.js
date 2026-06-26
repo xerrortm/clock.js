@@ -34,29 +34,83 @@ y
 }
 class _Clock{
   constructor(c={}){
-    this.t=c.time||"h:m:s";
-    this.d=c.date||"";
-    this.z=c.zone||0;
-    this.y=c.type||24;
-    this.l=[];
+    this.t = c.time || "h:m:s";
+    this.d = c.date || "";
+    this.z = c.zone || 0;
+    this.y = c.type || 24;
+    this.l = [];
     this.u();
-    this.i=setInterval(()=>this.u(),1000);
+    this.i = setInterval(()=>this.u(), 1000);
   }
   u(){
-    let d=p(new Date(),this.z);
-    this.T=f(this.t,d,0,this.y);
-    this.D=this.d?f(this.d,d,1,this.y):"";
-    this.l.forEach(x=>x({time:this.T,date:this.D,raw:d}));
+    let d = p(new Date(), this.z);
+    this.T = f(this.t, d, 0, this.y);
+    this.D = this.d ? f(this.d, d, 1, this.y) : "";
+    this.l.forEach(x =>
+      x({ time:this.T, date:this.D, raw:d })
+    );
   }
   on(fn){
     this.l.push(fn);
   }
-  get time(){return this.T}
-  get date(){return this.D}
+  get time(){ return this.T }
+  set time(v){
+    this.t = v;
+    this.u();
+  }
+  get date(){ return this.D }
+  set date(v){
+    this.d = v;
+    this.u();
+  }
 }
-function Clock(c){
-  return new _Clock(c||{});
+function Clock(c = {}){
+  const core = new _Clock(c);
+  return new Proxy(core, {
+    set(target, prop, value){
+      if(prop === "time"){
+        target.t = value;
+        target.u();
+        return true;
+      }
+      if(prop === "date"){
+        target.d = value;
+        target.u();
+        return true;
+      }
+      if(prop === "zone"){
+        target.z = value;
+        target.u();
+        return true;
+      }
+      if(prop === "type"){
+        target.y = value;
+        target.u();
+        return true;
+      }
+      target[prop] = value;
+      return true;
+    },
+    get(target, prop){
+      if(prop === "time") return target.T;
+      if(prop === "date") return target.D;
+      return target[prop];
+    }
+  });
 }
+Clock.isWeekend=d=>{
+  d=d||new Date();
+  return d.getDay()==0||d.getDay()==6;
+};
+Clock.isLeapYear=y=>{
+  y=y instanceof Date?y.getFullYear():y||new Date().getFullYear();
+  return y%4==0&&(y%100||y%400==0);
+};
+Clock.isNight=d=>{
+  d=d||new Date();
+  let h=d.getHours();
+  return h<6||h>=18;
+};
 window.Clock = Clock;
 t();
 setInterval(t,100);
